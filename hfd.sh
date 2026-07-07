@@ -371,7 +371,7 @@ monitor_progress() {
                 { p=$2; sub(/^\.\//,"",p)
                   if (p ~ /\.aria2$/) { sub(/\.aria2$/,"",p); if (p in want) a++; next }
                   if (p in want) { b+=$1; d++ } }
-                END { print b*512, d-a }
+                END { printf "%.0f %d\n", b*512, d-a }
             ' .hfd/manifest <(find . -type f ! -path './.hfd/*' -printf '%b\t%p\n' 2>/dev/null))
             render_progress "$now" "$files"
             # Self-throttle: if the walk took longer than the base interval, sleep that long

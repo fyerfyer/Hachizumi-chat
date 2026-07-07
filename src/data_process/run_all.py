@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 
 from . import config
-from .api_client import KimiClient
+from .llm_client import LLMClient
 from .build_dpo_dataset import main as build_dpo_main
 from .build_sft_dataset import generate_synthetic_sft, main as build_sft_main
 from .character_card_builder import main as build_character_main
@@ -38,7 +38,7 @@ def run_all(
     synthetic_path: Path | None = None
     if not skip_api and synthetic_sft > 0:
         try:
-            client = KimiClient()
+            client = LLMClient()
             synthetic_path = generate_synthetic_sft(
                 client,
                 card,

@@ -4,6 +4,32 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+
+def _load_dotenv() -> None:
+    """从项目根目录 .env 文件加载环境变量（不依赖 python-dotenv）。"""
+    root = Path(__file__).resolve().parent.parent.parent
+    env_path = root / ".env"
+    if not env_path.exists():
+        return
+    try:
+        with env_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+    except Exception:
+        pass
+
+
+_load_dotenv()
+
 # ---------------- 路径 ----------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
@@ -102,12 +128,25 @@ DPO_SEED_QUESTIONS_PER_TYPE = 50
 DPO_PARAPHRASE_PER_QUESTION = 20
 
 # ---------------- API 参数 ----------------
-KIMI_API_KEY = os.environ.get("KIMI_API_KEY", "")
-KIMI_BASE_URL = os.environ.get("KIMI_BASE_URL", "https://api.kimi.com/coding/v1")
-KIMI_MODEL = os.environ.get("KIMI_MODEL", "kimi-for-coding")
-KIMI_MAX_RETRIES = 3
-KIMI_RPM = 60
-KIMI_TIMEOUT = 120
+# 新版通用 LLM 配置（推荐）
+LLM_API_KEY = os.environ.get("LLM_API_KEY", os.environ.get("KIMI_API_KEY", ""))
+LLM_BASE_URL = os.environ.get(
+    "LLM_BASE_URL", os.environ.get("KIMI_BASE_URL", "https://api.deepseek.com/v1")
+)
+LLM_MODEL = os.environ.get(
+    "LLM_MODEL", os.environ.get("KIMI_MODEL", "deepseek-chat")
+)
+LLM_MAX_RETRIES = int(os.environ.get("LLM_MAX_RETRIES", "3"))
+LLM_RPM = int(os.environ.get("LLM_RPM", "60"))
+LLM_TIMEOUT = int(os.environ.get("LLM_TIMEOUT", "120"))
+
+# 保留旧版 Kimi 别名，兼容历史代码
+KIMI_API_KEY = LLM_API_KEY
+KIMI_BASE_URL = LLM_BASE_URL
+KIMI_MODEL = LLM_MODEL
+KIMI_MAX_RETRIES = LLM_MAX_RETRIES
+KIMI_RPM = LLM_RPM
+KIMI_TIMEOUT = LLM_TIMEOUT
 
 # ---------------- Prompt 模板 ----------------
 SYSTEM_PROMPT_TEMPLATE = (

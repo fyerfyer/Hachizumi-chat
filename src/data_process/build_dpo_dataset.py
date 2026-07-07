@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from . import config
-from .api_client import KimiClient
+from .llm_client import LLMClient
 from .utils import extract_json
 from .validators import validate_dpo_pair, dpo_chosen_contains_self_reference
 
@@ -121,7 +121,7 @@ def generate_seed_questions(character_card: Dict, n_per_type: int = 50) -> List[
     return seeds[:n_per_type * 4]
 
 
-def generate_api_seed_questions(client: KimiClient, character_card: Dict, n: int = 100) -> List[Dict]:
+def generate_api_seed_questions(client: LLMClient, character_card: Dict, n: int = 100) -> List[Dict]:
     """调用 API 基于角色卡生成更多种子问题。"""
     prompt = (
         "请基于以下天满八纯角色设定，生成 {n} 个自然、口语化的日常提问。\n"
@@ -166,7 +166,7 @@ def build_paraphrase_prompt(questions: List[str], n: int) -> str:
 
 
 def paraphrase_questions(
-    client: KimiClient,
+    client: LLMClient,
     questions: List[str],
     qtypes: List[str],
     n: int = 20,
@@ -223,7 +223,7 @@ def build_batch_pair_prompt(questions: List[str]) -> str:
 
 
 def generate_pairs_with_api(
-    client: KimiClient,
+    client: LLMClient,
     questions: List[str],
     question_types: List[str],
     batch_size: int = 5,
@@ -305,7 +305,7 @@ def main(
     client = None
     if not skip_api:
         try:
-            client = KimiClient()
+            client = LLMClient()
             logger.info("[build_dpo_dataset] 使用 Kimi API 生成 DPO 对...")
         except Exception as e:
             logger.error("[build_dpo_dataset] API 客户端初始化失败：%s，切换为规则模式。", e)

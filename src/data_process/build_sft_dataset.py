@@ -12,7 +12,7 @@ from typing import Dict, List, Set, Tuple
 from tqdm import tqdm
 
 from . import config
-from .api_client import KimiClient
+from .llm_client import LLMClient
 from .nsfw_filter import filter_nsfw_samples
 from .utils import extract_json
 from .validators import validate_sft_sample
@@ -183,7 +183,7 @@ def load_scenes(path: Path) -> List[Dict]:
 
 
 def generate_synthetic_sft(
-    client: KimiClient,
+    client: LLMClient,
     character_card: Dict,
     n: int = config.DPO_DEFAULT_SYNTH_SFT,
     output_path: Path = config.DATA_DIR / "synthetic_sft.jsonl",

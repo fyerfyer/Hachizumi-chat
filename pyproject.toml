@@ -8,6 +8,17 @@ dependencies = [
     "tqdm>=4.66.0",
     "numpy>=1.26.0",
     "jieba>=0.42.1",
+    "unsloth>=2025.0.0",
+    "transformers>=4.45.0",
+    "trl>=0.11.0",
+    "peft>=0.12.0",
+    "datasets>=3.0.0",
+    "accelerate>=0.34.0",
+    "bitsandbytes>=0.43.0",
+    "sentencepiece>=0.2.0",
+    "protobuf>=4.24.0",
+    "einops>=0.8.0",
+    "nvidia-ml-py>=12.535.108",
 ]
 
 [project.optional-dependencies]

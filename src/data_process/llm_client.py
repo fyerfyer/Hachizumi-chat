@@ -1,10 +1,12 @@
-"""Kimi / Kimi Code API 的轻量封装。"""
+"""OpenAI-compatible LLM API 的轻量封装。
+
+默认支持 DeepSeek、Kimi、Kimi Code 等任意兼容 OpenAI /chat/completions 的服务。
+通过环境变量 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL 配置。
+"""
 from __future__ import annotations
 
 import concurrent.futures
-import json
 import logging
-import os
 import time
 from typing import Any, Dict, List, Optional
 
@@ -17,34 +19,33 @@ from .utils import extract_json
 logger = logging.getLogger(__name__)
 
 
-class KimiAPIError(Exception):
-    """Kimi API 调用失败。"""
+class LLMAPIError(Exception):
+    """LLM API 调用失败。"""
 
     pass
 
 
-class KimiClient:
-    """OpenAI-compatible Kimi API 客户端。"""
+class LLMClient:
+    """OpenAI-compatible LLM API 客户端。"""
 
     def __init__(
         self,
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         model: Optional[str] = None,
-        rpm: int = config.KIMI_RPM,
-        timeout: int = config.KIMI_TIMEOUT,
+        rpm: int = config.LLM_RPM,
+        timeout: int = config.LLM_TIMEOUT,
     ):
-        self.api_key = api_key or config.KIMI_API_KEY
-        self.base_url = (base_url or config.KIMI_BASE_URL).rstrip("/")
-        self.model = model or config.KIMI_MODEL
+        self.api_key = api_key or config.LLM_API_KEY
+        self.base_url = (base_url or config.LLM_BASE_URL).rstrip("/")
+        self.model = model or config.LLM_MODEL
         self.timeout = timeout
         self.min_interval = 60.0 / max(rpm, 1)
         self._last_call = 0.0
-        self._lock = False
 
         if not self.api_key:
-            raise KimiAPIError(
-                "KIMI_API_KEY 未设置。请先执行：export KIMI_API_KEY=sk-..."
+            raise LLMAPIError(
+                "LLM_API_KEY 未设置。请先执行：export LLM_API_KEY=sk-..."
             )
 
     def _headers(self) -> Dict[str, str]:
@@ -62,7 +63,7 @@ class KimiClient:
     def _post(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """发送一次请求，含指数退避重试。"""
         url = f"{self.base_url}/chat/completions"
-        for attempt in range(config.KIMI_MAX_RETRIES):
+        for attempt in range(config.LLM_MAX_RETRIES):
             self._rate_limit_wait()
             try:
                 resp = requests.post(
@@ -80,7 +81,7 @@ class KimiClient:
                     logger.warning(f"API 限流/服务不可用，{wait}s 后重试...")
                     time.sleep(wait)
                     continue
-                raise KimiAPIError(
+                raise LLMAPIError(
                     f"HTTP {resp.status_code}: {resp.text[:500]}"
                 )
             except requests.exceptions.Timeout:
@@ -89,7 +90,7 @@ class KimiClient:
             except requests.exceptions.RequestException as e:
                 logger.warning(f"请求异常：{e}，第 {attempt + 1} 次重试...")
                 time.sleep(2 ** attempt)
-        raise KimiAPIError("超过最大重试次数，API 调用失败。")
+        raise LLMAPIError("超过最大重试次数，API 调用失败。")
 
     def chat(
         self,
@@ -144,7 +145,7 @@ class KimiClient:
                         json_mode=json_mode,
                     )
                     results.append(res)
-                except KimiAPIError as e:
+                except LLMAPIError as e:
                     logger.error("单条 API 失败：%s", e)
                     results.append(None)
             return results
@@ -169,15 +170,20 @@ class KimiClient:
                 idx = futures[future]
                 try:
                     results[idx] = future.result()
-                except KimiAPIError as e:
+                except LLMAPIError as e:
                     logger.error("单条 API 失败：%s", e)
                     results[idx] = None
         return results
 
 
+# 保留旧别名，兼容历史代码
+KimiAPIError = LLMAPIError
+KimiClient = LLMClient
+
+
 def test_one():
     """快速测试 API 连通性。"""
-    client = KimiClient()
+    client = LLMClient()
     res = client.chat(
         messages=[
             {"role": "system", "content": "你是一个 helpful 的助手。"},
