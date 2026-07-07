@@ -13,17 +13,28 @@ if [[ ! -f "$MODEL_DIR/config.json" ]]; then
   MODEL_DIR="unsloth/Qwen2.5-7B-Instruct-bnb-4bit"
 fi
 
+SFT_ADAPTER="${SFT_ADAPTER_PATH:-outputs/sft_qwen25_7b_hasumi_lora_v2}"
+DPO_OUTPUT_DIR="${DPO_OUTPUT_DIR:-outputs/dpo_qwen25_7b_hasumi_lora_v2}"
+BETA="${DPO_BETA:-0.05}"
+LR="${DPO_LR:-5e-5}"
+BATCH_SIZE="${DPO_BATCH_SIZE:-2}"
+GRAD_ACC="${DPO_GRAD_ACC:-4}"
+MAX_SEQ_LEN="${DPO_MAX_SEQ_LEN:-2048}"
+MAX_PROMPT_LEN="${DPO_MAX_PROMPT_LEN:-1024}"
+
+echo "[run_dpo.sh] sft_adapter=$SFT_ADAPTER, output_dir=$DPO_OUTPUT_DIR, beta=$BETA"
+
 uv run python -m src.training.dpo_unsloth \
-  --sft_adapter_path outputs/sft_qwen25_7b_hasumi_lora \
+  --sft_adapter_path "$SFT_ADAPTER" \
   --base_model_name "$MODEL_DIR" \
   --dpo_data_path data/dpo_train.jsonl \
-  --output_dir outputs/dpo_qwen25_7b_hasumi_lora \
-  --beta 0.1 \
-  --learning_rate 5e-5 \
-  --per_device_train_batch_size 2 \
-  --gradient_accumulation_steps 4 \
+  --output_dir "$DPO_OUTPUT_DIR" \
+  --beta "$BETA" \
+  --learning_rate "$LR" \
+  --per_device_train_batch_size "$BATCH_SIZE" \
+  --gradient_accumulation_steps "$GRAD_ACC" \
   --num_train_epochs 1 \
-  --max_seq_length 2048 \
-  --max_prompt_length 1024 \
+  --max_seq_length "$MAX_SEQ_LEN" \
+  --max_prompt_length "$MAX_PROMPT_LEN" \
   --report_to none \
   "$@"
