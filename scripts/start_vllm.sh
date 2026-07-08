@@ -33,7 +33,7 @@ echo "  util:  $GPU_UTIL"
 
 echo "$PORT" > .vllm_port
 
-exec python -m vllm.entrypoints.openai.api_server \
+exec .venv-vllm/bin/python -m vllm.entrypoints.openai.api_server \
   --model "$MODEL_DIR" \
   --served-model-name "$MODEL_NAME" \
   --dtype bfloat16 \
