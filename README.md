@@ -219,7 +219,7 @@ uv run python -m src.training.merge_and_export \
 产物：
 
 - `outputs/hasumi_qwen25_7b_merged/`：合并后的 bfloat16 完整模型；当前实现输出到 `outputs/hasumi_qwen25_7b_merged_v3/`。
-- `outputs/hasumi_qwen25_7b_gguf/*.gguf`：Q4_K_M / Q5_K_M / Q8_0 量化 GGUF；当前实现输出到 `outputs/hasumi_qwen25_7b_merged_v3_gguf/*.gguf`。
+- `outputs/hasumi_qwen25_7b_gguf/`：Q4_K_M / Q5_K_M / Q8_0 量化 GGUF；当前实现输出到 `outputs/hasumi_qwen25_7b_gguf_v3/`，各量化版本分别位于 `q4_k_m/`、`q5_k_m/`、`q8_0/` 子目录下。
 
 ## 部署与推理
 

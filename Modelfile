@@ -1,4 +1,4 @@
-FROM ./hasumi_qwen25_7b_merged_v3.Q4_K_M.gguf
+FROM ./outputs/hasumi_qwen25_7b_gguf_v3/q4_k_m/hasumi_qwen25_7b_merged_v3.Q4_K_M.gguf
 
 TEMPLATE """{{ if .System }}<|im_start|>system
 {{ .System }}<|im_end|>
