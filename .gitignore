@@ -7,6 +7,12 @@ __pycache__/
 *.pyd
 .Python
 
+# 本地笔记（不提交）
+self-files/
+
+# 原始游戏剧本（用户自行提供，不提交）
+dataset/
+
 # 数据与模型输出
 data/
 logs/

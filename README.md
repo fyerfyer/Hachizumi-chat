@@ -9,10 +9,8 @@
 ## 项目结构
 
 ```
-test-train/
-├── dataset/                         # 原始剧本数据
-│   └── 0.txt.gz                     # 游戏剧本（已繁转简）
-├── data/                            # 产物目录（已 gitignore）
+Hachizumi-chat/
+├── data/                            # 产物目录（已 gitignore，运行流水线后生成）
 │   ├── raw/0.txt.gz -> ../../dataset/0.txt.gz
 │   ├── processed/
 │   │   ├── scenes.jsonl             # 解析后的场景
@@ -31,9 +29,14 @@ test-train/
 │   │   ├── build_dpo_dataset.py
 │   │   ├── style_clean.py           # 剥离游戏角色关系/剧情
 │   │   ├── style_enhance.py         # 风格增强与 DPO 生成
+│   │   ├── enhance_dataset.py       # 数据集增强与去重
+│   │   ├── style_templates.py       # 风格转换模板
+│   │   ├── config.py                # 数据流水线配置
 │   │   ├── llm_client.py            # 通用 LLM API 客户端
+│   │   ├── nsfw_filter.py           # 内容过滤
 │   │   ├── validators.py
 │   │   ├── utils.py
+│   │   ├── validate_outputs.py
 │   │   └── run_all.py
 │   └── training/                    # 训练代码
 │       ├── sft_unsloth.py           # Stage 1: SFT QLoRA
@@ -47,17 +50,26 @@ test-train/
 │   ├── run_sft.sh
 │   ├── run_dpo.sh
 │   ├── export_gguf.sh
+│   ├── enhance_data.sh              # 数据增强脚本
+│   ├── start_vllm.sh                # 启动 vLLM 服务
+│   ├── test_vllm.sh                 # vLLM 调用测试
+│   ├── eval_hasumi.py               # 综合评测脚本
 │   ├── test_style.py
 │   ├── test_style_v2.py
-│   └── test_style_v3.py             # 风格评测脚本
+│   ├── test_style_v3.py             # 风格评测脚本
+│   ├── test_style_long.py           # 长句风格稳定性测试
+│   └── test_style_temp.py           # 温度/采样敏感性测试
 ├── hfd.sh                           # HuggingFace 下载脚本（带镜像）
 ├── Modelfile                        # Ollama 部署配置
-├── self-files/
-│   ├── DESIGN.md                    # 原始设计文档
-│   └── STYLE_TUNING_PLAN.md         # 语气调优调研方案
 ├── pyproject.toml
+├── uv.lock
 └── README.md
 ```
+
+> **说明**：
+> - `data/` 为运行产物目录，默认已写入 `.gitignore`，不会提交到 GitHub；执行数据流水线后自动生成。
+> - 原始游戏剧本需自行放置到 `dataset/0.txt.gz`（已繁转简），该目录同样已写入 `.gitignore`。
+> - `self-files/` 为本地笔记目录，不提交。
 
 ## 环境准备
 
@@ -240,6 +252,9 @@ ollama run hasumi-qwen25-7b
 
 ```bash
 # 启动服务
+./scripts/start_vllm.sh
+
+# 或手动启动
 .venv-vllm/bin/python -m vllm.entrypoints.openai.api_server \
   --model outputs/hasumi_qwen25_7b_merged_v3 \
   --served-model-name hasumi_v3 \
@@ -263,7 +278,7 @@ curl http://localhost:8000/v1/chat/completions \
 
 ## 语气调优参考
 
-当前实现已经完成了 `self-files/STYLE_IMPROVEMENT_PLAN.md` 和 `self-files/STYLE_TUNING_PLAN.md` 中的关键优化方向：
+当前实现已完成以下关键优化方向：
 
 - 使用 `src/data_process/style_clean.py` 清洗剧本数据，剥离游戏角色关系与剧情词。
 - 使用 `src/data_process/style_enhance.py` 生成去关系化的身份锚定、短句鲁棒、负面样本与风格 DPO 偏好对。
