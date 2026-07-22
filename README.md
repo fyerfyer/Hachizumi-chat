@@ -276,6 +276,18 @@ curl http://localhost:8000/v1/chat/completions \
   }'
 ```
 
+## 模型与数据下载（ModelScope）
+
+本项目训练产物已按 MIT 协议公开上传至 ModelScope，可直接下载使用：
+
+- **数据集**：[`fyerfyer/hachizumi-chat-dataset`](https://modelscope.cn/datasets/fyerfyer/hachizumi-chat-dataset)
+- **SFT LoRA v3**：[`fyerfyer/hachizumi-qwen25-7b-sft-lora-v3`](https://modelscope.cn/models/fyerfyer/hachizumi-qwen25-7b-sft-lora-v3)
+- **DPO LoRA v3**：[`fyerfyer/hachizumi-qwen25-7b-dpo-lora-v3`](https://modelscope.cn/models/fyerfyer/hachizumi-qwen25-7b-dpo-lora-v3)
+- **完整合并模型 v3**：[`fyerfyer/hachizumi-qwen25-7b-merged-v3`](https://modelscope.cn/models/fyerfyer/hachizumi-qwen25-7b-merged-v3)
+- **GGUF 量化模型 v3**：[`fyerfyer/hachizumi-qwen25-7b-gguf-v3`](https://modelscope.cn/models/fyerfyer/hachizumi-qwen25-7b-gguf-v3)
+
+> 注：公开数据集为处理后的场景与合成样本，不包含原始游戏剧本。
+
 ## 语气调优参考
 
 当前实现已完成以下关键优化方向：
@@ -298,5 +310,5 @@ curl http://localhost:8000/v1/chat/completions \
 
 1. **API Key 安全**：`.env`、`.gitignore` 已排除敏感文件与产物目录，请勿将真实 key 提交到 Git。
 2. **GPU 调配**：训练脚本会通过 `src/training/gpu_utils.py` 自动选择空闲 GPU；多卡环境下默认单卡运行，避免抢占其他任务资源。
-3. **版权**：原始剧本与合成数据仅供个人学习本地使用，请勿公开分发。
+3. **版权**：原始游戏剧本仅供个人学习本地使用，请勿公开分发；本项目已按 MIT 协议公开的处理后数据集、模型权重与代码可在对应 ModelScope 仓库中获取。
 4. **模型温度**：`kimi-for-coding` 只支持 `temperature=1`，`llm_client.py` 会自动调整；其他模型按需求设置即可。

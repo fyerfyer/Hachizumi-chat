@@ -19,6 +19,7 @@ dependencies = [
     "protobuf>=4.24.0",
     "einops>=0.8.0",
     "nvidia-ml-py>=12.535.108",
+    "modelscope>=1.18.0",
 ]
 
 [project.optional-dependencies]
